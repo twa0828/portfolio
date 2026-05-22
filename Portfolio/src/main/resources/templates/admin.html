@@ -1,13 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>管理者画面</title>
+    <title>管理者ダッシュボード</title>
 </head>
 
 <body>
 
-<h1>管理者画面です</h1>
+<h1>管理者ダッシュボード</h1>
+
+<hr>
+
+<h2>年間いいねランキング</h2>
+
+<ul>
+    <li th:each="ranking : ${yearRankingList}"
+        th:text="${ranking}">
+    </li>
+</ul>
+
+<hr>
+
+<h2>月間いいねランキング</h2>
+
+<ul>
+    <li th:each="ranking : ${monthRankingList}"
+        th:text="${ranking}">
+    </li>
+</ul>
+
+<hr>
+
+<div>
+    <a href="/accounts">
+        アカウント一覧
+    </a>
+</div>
+
+<br>
+
+<div>
+    <a href="/contacts">
+        お問い合わせ一覧
+    </a>
+</div>
+
+<hr>
+
+<form action="/logout"
+      method="post">
+
+    <button type="submit">
+        ログアウト
+    </button>
+
+</form>
 
 </body>
 </html>
