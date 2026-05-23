@@ -49,16 +49,5 @@ public class AdminController {
 
 	    return "admin";
 	}
-    @GetMapping("/accounts")
-    public String accounts(
-            HttpSession session) {
 
-        // 未ログインチェック
-        if (session.getAttribute("loginUser") == null) {
-
-            return "redirect:/login";
-        }
-
-        return "accounts";
-    }
 }
