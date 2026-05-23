@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>アカウント一覧</title>
+
+<style>
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+th {
+    background-color: #eee;
+}
+
+button {
+    margin-right: 5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>アカウント一覧</h1>
+
+<table>
+
+    <tr>
+        <th>名前</th>
+        <th>メールアドレス</th>
+        <th>ステータス</th>
+        <th>操作</th>
+    </tr>
+
+    <tr th:each="account : ${accountList}">
+
+        <td th:text="${account.name}">
+        </td>
+
+        <td th:text="${account.email}">
+        </td>
+
+        <td th:text="${account.status}">
+        </td>
+
+        <td>
+
+			<a th:href="@{/accounts/edit/{id}(id=${account.id})}">
+			    編集
+			</a>
+			<form th:action="@{/accounts/delete/{id}(id=${account.id})}"
+			      method="post"
+			      style="display:inline;">
+
+			    <button type="submit">
+			        削除
+			    </button>
+
+			</form>
+
+            <button>
+                ステータス切替
+            </button>
+
+        </td>
+
+    </tr>
+
+</table>
+
+<br>
+
+<a href="/admin">
+    管理者画面へ戻る
+</a>
+
+</body>
+</html>

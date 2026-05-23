@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>アカウント編集</title>
+</head>
+
+<body>
+
+<h1>アカウント編集</h1>
+
+<form th:action="@{/accounts/update/{id}(id=${account.id})}"
+      method="post">
+
+    <div>
+
+        名前
+
+        <br>
+
+        <input type="text"
+               name="name"
+               th:value="${account.name}">
+
+    </div>
+
+    <br>
+
+    <div>
+
+        メールアドレス
+
+        <br>
+
+        <input type="text"
+               name="email"
+               th:value="${account.email}">
+
+    </div>
+
+    <br>
+
+    <div>
+
+        ステータス
+
+        <br>
+
+        <select name="status">
+
+            <option value="アクセス許可"
+                th:selected="${account.status == 'アクセス許可'}">
+
+                アクセス許可
+
+            </option>
+
+            <option value="アクセス禁止"
+                th:selected="${account.status == 'アクセス禁止'}">
+
+                アクセス禁止
+
+            </option>
+
+        </select>
+
+    </div>
+
+    <br>
+
+    <button type="submit">
+        更新
+    </button>
+
+</form>
+
+<br>
+
+<a href="/accounts">
+    アカウント一覧へ戻る
+</a>
+
+</body>
+</html>

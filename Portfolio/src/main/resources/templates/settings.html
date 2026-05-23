@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>設定画面</title>
+
+<style>
+
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>設定画面</h1>
+
+<!-- エラー -->
+<p class="error"
+   th:text="${errorMessage}">
+</p>
+
+<!-- 成功 -->
+<p class="success"
+   th:text="${successMessage}">
+</p>
+
+<form action="/settings/update"
+      method="post">
+
+    <div>
+
+        メールアドレス
+
+        <br>
+
+        <input type="text"
+               name="email">
+
+    </div>
+
+    <br>
+
+    <div>
+
+        パスワード
+
+        <br>
+
+        <input type="password"
+               name="password">
+
+    </div>
+
+    <br>
+
+    <div>
+
+        名前
+
+        <br>
+
+        <input type="text"
+               name="name">
+
+    </div>
+
+    <br>
+
+    <button type="submit">
+        更新
+    </button>
+
+</form>
+
+<br>
+
+<a href="/user">
+    一般ユーザー画面へ戻る
+</a>
+
+</body>
+</html>
