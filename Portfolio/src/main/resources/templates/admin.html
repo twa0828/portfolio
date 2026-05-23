@@ -2,60 +2,123 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>管理者ダッシュボード</title>
+<meta charset="UTF-8">
+<title>管理者ダッシュボード</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+/* 全体 */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* サイドバー */
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+}
+
+/* メニュー */
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+}
+
+/* メイン */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* ランキング */
+.ranking-box {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<h1>管理者ダッシュボード</h1>
+<div class="container">
 
-<hr>
+    <!-- サイドバー -->
+    <div class="sidebar">
 
-<h2>年間いいねランキング</h2>
+        <h2>管理メニュー</h2>
 
-<ul>
-    <li th:each="ranking : ${yearRankingList}"
-        th:text="${ranking}">
-    </li>
-</ul>
+        <a href="/admin">
+            ダッシュボード
+        </a>
 
-<hr>
+        <a href="/accounts">
+            アカウント一覧
+        </a>
 
-<h2>月間いいねランキング</h2>
+        <a href="/contacts">
+            お問い合わせ一覧
+        </a>
 
-<ul>
-    <li th:each="ranking : ${monthRankingList}"
-        th:text="${ranking}">
-    </li>
-</ul>
+        <hr>
 
-<hr>
+        <form action="/logout"
+              method="post">
 
-<div>
-    <a href="/accounts">
-        アカウント一覧
-    </a>
+            <button type="submit">
+                ログアウト
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- メイン -->
+    <div class="main">
+
+        <h1>管理者ダッシュボード</h1>
+
+        <!-- 年間ランキング -->
+        <div class="ranking-box">
+
+            <h2>年間いいねランキング</h2>
+
+            <ul>
+                <li th:each="ranking : ${yearRankingList}"
+                    th:text="${ranking}">
+                </li>
+            </ul>
+
+        </div>
+
+        <!-- 月間ランキング -->
+        <div class="ranking-box">
+
+            <h2>月間いいねランキング</h2>
+
+            <ul>
+                <li th:each="ranking : ${monthRankingList}"
+                    th:text="${ranking}">
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
 </div>
-
-<br>
-
-<div>
-    <a href="/contacts">
-        お問い合わせ一覧
-    </a>
-</div>
-
-<hr>
-
-<form action="/logout"
-      method="post">
-
-    <button type="submit">
-        ログアウト
-    </button>
-
-</form>
 
 </body>
 </html>
