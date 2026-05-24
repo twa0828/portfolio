@@ -128,5 +128,44 @@ public class AccountController {
 
         return "redirect:/accounts";
     }
+    @PostMapping("/accounts/status/{id}")
+    public String changeStatus(
+            @PathVariable String id) {
+
+        for (int i = 0; i < accountList.size(); i++) {
+
+            Map<String, String> account =
+                    accountList.get(i);
+
+            if (account.get("id").equals(id)) {
+
+                String newStatus;
+
+                // 切替
+                if (account.get("status")
+                        .equals("アクセス許可")) {
+
+                    newStatus = "アクセス禁止";
+
+                } else {
+
+                    newStatus = "アクセス許可";
+                }
+
+                // 更新
+                accountList.set(i,
+                        Map.of(
+                            "id", account.get("id"),
+                            "name", account.get("name"),
+                            "email", account.get("email"),
+                            "status", newStatus
+                        ));
+
+                break;
+            }
+        }
+
+        return "redirect:/accounts";
+    }
     
 }

@@ -68,9 +68,23 @@ button {
 
 			</form>
 
-            <button>
-                ステータス切替
-            </button>
+			<form th:action="@{/accounts/status/{id}(id=${account.id})}"
+			      method="post"
+			      style="display:inline;">
+
+			    <button type="submit">
+
+			        <span th:if="${account.status == 'アクセス許可'}">
+			            アクセス禁止へ
+			        </span>
+
+			        <span th:if="${account.status == 'アクセス禁止'}">
+			            アクセス許可へ
+			        </span>
+
+			    </button>
+
+			</form>
 
         </td>
 
