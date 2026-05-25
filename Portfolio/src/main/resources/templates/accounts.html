@@ -91,6 +91,21 @@ button {
     </tr>
 
 </table>
+<br>
+
+<div>
+
+    <span th:each="i : ${#numbers.sequence(1, totalPages)}">
+
+        <a th:href="@{/accounts(page=${i})}"
+           th:text="${i}">
+        </a>
+
+        &nbsp;
+
+    </span>
+
+</div>
 
 <br>
 

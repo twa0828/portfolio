@@ -43,10 +43,42 @@ public class AccountController {
                 "email", "suzuki@test.com",
                 "status", "アクセス許可"
         ));
+        accountList.add(Map.of(
+                "id", "4",
+                "name", "高橋",
+                "email", "takahashi@test.com",
+                "status", "アクセス許可"
+        ));
+
+        accountList.add(Map.of(
+                "id", "5",
+                "name", "伊藤",
+                "email", "ito@test.com",
+                "status", "アクセス禁止"
+        ));
+
+        accountList.add(Map.of(
+                "id", "6",
+                "name", "渡辺",
+                "email", "watanabe@test.com",
+                "status", "アクセス許可"
+        ));
+
+        accountList.add(Map.of(
+                "id", "7",
+                "name", "山本",
+                "email", "yamamoto@test.com",
+                "status", "アクセス禁止"
+        ));
     }
 
     @GetMapping("/accounts")
     public String accounts(
+
+            @RequestParam(
+                    defaultValue = "1")
+            int page,
+
             HttpSession session,
             Model model) {
 
@@ -56,9 +88,39 @@ public class AccountController {
             return "redirect:/login";
         }
 
+        int pageSize = 5;
+
+        // 開始位置
+        int start =
+                (page - 1) * pageSize;
+
+        // 終了位置
+        int end =
+                Math.min(
+                        start + pageSize,
+                        accountList.size());
+
+        // 現在ページ分だけ取得
+        List<Map<String, String>> pageList =
+                accountList.subList(start, end);
+
+        // 総ページ数
+        int totalPages =
+                (int)Math.ceil(
+                        (double) accountList.size()
+                        / pageSize);
+
         model.addAttribute(
                 "accountList",
-                accountList);
+                pageList);
+
+        model.addAttribute(
+                "currentPage",
+                page);
+
+        model.addAttribute(
+                "totalPages",
+                totalPages);
 
         return "accounts";
     }
