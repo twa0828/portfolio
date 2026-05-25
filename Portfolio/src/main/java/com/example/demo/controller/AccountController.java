@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class AccountController {
@@ -70,6 +72,7 @@ public class AccountController {
                 "email", "yamamoto@test.com",
                 "status", "アクセス禁止"
         ));
+        
     }
 
     @GetMapping("/accounts")
@@ -124,6 +127,176 @@ public class AccountController {
 
         return "accounts";
     }
+    @GetMapping("/accounts/create")
+    public String createForm(
+            HttpSession session){
+
+        if (session.getAttribute("loginUser") == null) {
+
+            return "redirect:/login";
+        }
+
+        return "account-create";
+    }
+    @PostMapping("/accounts/create")
+    public String createAccount(
+
+            @RequestParam String role,
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam String status,
+
+            @RequestParam(required = false)
+            MultipartFile profileImage,
+
+            @RequestParam(required = false)
+            String furigana,
+
+            @RequestParam(required = false)
+            String gender,
+
+            @RequestParam(required = false)
+            String age,
+
+            @RequestParam(required = false)
+            String profile,
+
+            Model model) {
+    	// 名前チェック
+    	if (name.length() > 255) {
+
+    	    model.addAttribute(
+    	            "errorMessage",
+    	            "名前は255文字以内です");
+
+    	    return "account-create";
+    	}
+
+    	// メールチェック
+    	if (email.length() > 255) {
+
+    	    model.addAttribute(
+    	            "errorMessage",
+    	            "メールアドレスは255文字以内です");
+
+    	    return "account-create";
+    	}
+
+    	if (!email.matches(
+    	        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+
+    	    model.addAttribute(
+    	            "errorMessage",
+    	            "メール形式が正しくありません");
+
+    	    return "account-create";
+    	}
+
+    	// パスワードチェック
+    	if (!password.matches(
+    	        "^[a-zA-Z0-9_-]{8,32}$")) {
+
+    	    model.addAttribute(
+    	            "errorMessage",
+    	            "パスワードは8〜32文字の半角英数字と_-のみです");
+
+    	    return "account-create";
+    	}
+ 
+
+    	    // ふりがな
+    	    if (furigana.length() > 255) {
+
+    	        model.addAttribute(
+    	                "errorMessage",
+    	                "ふりがなは255文字以内です");
+
+    	        return "account-create";
+    	    }
+
+    	    if (!furigana.matches(
+    	            "^[ぁ-んー]*$")) {
+
+    	        model.addAttribute(
+    	                "errorMessage",
+    	                "ふりがなはひらがなのみです");
+
+    	        return "account-create";
+    	    }
+
+    	    // 性別
+    	    if (!gender.equals("男性")
+    	            && !gender.equals("女性")) {
+
+    	        model.addAttribute(
+    	                "errorMessage",
+    	                "性別が不正です");
+
+    	        return "account-create";
+    	    }
+
+    	    // 年齢
+    	    if (!age.matches(
+    	            "^[0-9]{1,3}$")) {
+
+    	        model.addAttribute(
+    	                "errorMessage",
+    	                "年齢は3桁以内の数字です");
+
+    	        return "account-create";
+    	    }
+
+    	    // 自己紹介
+    	    if (profile.length() > 1500) {
+
+    	        model.addAttribute(
+    	                "errorMessage",
+    	                "自己紹介は1500文字以内です");
+
+    	        return "account-create";
+    	    }
+    	   	if (role.equals("USER")) {
+
+        	    // 画像サイズ
+        	    if (profileImage != null
+        	            && profileImage.getSize() > 2097152) {
+
+        	        model.addAttribute(
+        	                "errorMessage",
+        	                "画像は2MB以内です");
+
+        	    	return "account-create";
+        	    }
+        	    		    }
+    	    String newId =
+    	            String.valueOf(
+    	                    accountList.size() + 1);
+
+    	    Map<String, String> account =
+    	            new HashMap<>();
+
+    	    account.put("id", newId);
+    	    account.put("role", role);
+    	    account.put("name", name);
+    	    account.put("email", email);
+    	    account.put("password", password);
+    	    account.put("status", status);
+
+    	    if (role.equals("USER")) {
+
+    	        account.put("furigana", furigana);
+    	        account.put("gender", gender);
+    	        account.put("age", age);
+    	        account.put("profile", profile);
+    	    }
+
+    	    accountList.add(account);
+
+    	    return "redirect:/accounts";
+    	}
+    
+    
 
     @PostMapping("/accounts/delete/{id}")
     public String deleteAccount(
@@ -229,5 +402,7 @@ public class AccountController {
 
         return "redirect:/accounts";
     }
+ 
+    
     
 }
