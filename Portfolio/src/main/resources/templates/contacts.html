@@ -32,6 +32,48 @@ th {
 <div class="container mt-5">
 <h1 class="mb-4">お問い合わせ一覧</h1>
 
+<form action="/contacts"
+      method="get"
+      class="mb-3">
+
+    <label for="status">
+        ステータス
+    </label>
+
+    <select id="status"
+            name="status"
+            class="form-select"
+            style="width: 200px; display: inline-block;">
+
+        <option value="all"
+                th:selected="${selectedStatus == 'all'}">
+            全て
+        </option>
+
+        <option value="未対応"
+                th:selected="${selectedStatus == '未対応'}">
+            未対応
+        </option>
+
+        <option value="対応中"
+                th:selected="${selectedStatus == '対応中'}">
+            対応中
+        </option>
+
+        <option value="対応済み"
+                th:selected="${selectedStatus == '対応済み'}">
+            対応済み
+        </option>
+
+    </select>
+
+    <button type="submit"
+            class="btn btn-primary">
+        絞り込み
+    </button>
+
+</form>
+
 <table>
 
     <tr>
@@ -46,17 +88,17 @@ th {
         <td th:text="${contact.category}">
         </td>
 
-        <td th:text="${contact.content}">
+        <td th:text="${contact.summary}">
         </td>
 
         <td th:text="${contact.status}">
         </td>
 
         <td>
-			<button type="submit"
-			        class="btn btn-primary">
+			<a th:href="@{/contacts/{id}(id=${contact.id})}"
+			   class="btn btn-primary">
                 詳細
-            </button>
+            </a>
         </td>
 
     </tr>

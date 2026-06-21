@@ -13,12 +13,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class SettingController {
 
+    private boolean isUser(
+            HttpSession session) {
+
+        return session.getAttribute("loginUser") != null
+                && "USER".equals(session.getAttribute("role"));
+    }
+
     @GetMapping("/settings")
     public String settings(
             HttpSession session) {
 
-        // 未ログインチェック
-        if (session.getAttribute("loginUser") == null) {
+        // 一般ユーザーチェック
+        if (!isUser(session)) {
 
             return "redirect:/login";
         }
@@ -36,8 +43,8 @@ public class SettingController {
             HttpSession session,
             Model model) {
 
-        // 未ログインチェック
-        if (session.getAttribute("loginUser") == null) {
+        // 一般ユーザーチェック
+        if (!isUser(session)) {
 
             return "redirect:/login";
         }

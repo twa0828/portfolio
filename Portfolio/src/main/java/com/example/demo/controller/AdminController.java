@@ -12,13 +12,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AdminController {
 
+    private boolean isAdmin(
+            HttpSession session) {
+
+        return session.getAttribute("loginUser") != null
+                && "ADMIN".equals(session.getAttribute("role"));
+    }
+
 	@GetMapping("/admin")
 	public String admin(
 	        HttpSession session,
 	        Model model) {
 
-	    // 未ログインチェック
-	    if (session.getAttribute("loginUser") == null) {
+	    // 管理者チェック
+	    if (!isAdmin(session)) {
 
 	        return "redirect:/login";
 	    }

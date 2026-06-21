@@ -1,11 +1,11 @@
 package com.example.demo.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
+
+import com.example.demo.model.Account;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,59 +19,81 @@ import org.springframework.web.multipart.MultipartFile;
 public class AccountController {
 
     // 仮DB
-    private List<Map<String, String>> accountList =
+    private List<Account> accountList =
             new ArrayList<>();
+
+    private boolean isAdmin(
+            HttpSession session) {
+
+        return session.getAttribute("loginUser") != null
+                && "ADMIN".equals(session.getAttribute("role"));
+    }
 
     // コンストラクタ
     public AccountController() {
 
-        accountList.add(Map.of(
-                "id", "1",
-                "name", "田中",
-                "email", "tanaka@test.com",
-                "status", "アクセス許可"
-        ));
+        accountList.add(new Account(
+                "1",
+                "ADMIN",
+                "田中",
+                "tanaka@test.com",
+                "password1",
+                "アクセス許可",
+                "false"));
 
-        accountList.add(Map.of(
-                "id", "2",
-                "name", "佐藤",
-                "email", "sato@test.com",
-                "status", "アクセス禁止"
-        ));
+        accountList.add(new Account(
+                "2",
+                "ADMIN",
+                "佐藤",
+                "sato@test.com",
+                "password1",
+                "アクセス禁止",
+                "false"));
 
-        accountList.add(Map.of(
-                "id", "3",
-                "name", "鈴木",
-                "email", "suzuki@test.com",
-                "status", "アクセス許可"
-        ));
-        accountList.add(Map.of(
-                "id", "4",
-                "name", "高橋",
-                "email", "takahashi@test.com",
-                "status", "アクセス許可"
-        ));
+        accountList.add(new Account(
+                "3",
+                "ADMIN",
+                "鈴木",
+                "suzuki@test.com",
+                "password1",
+                "アクセス許可",
+                "false"));
 
-        accountList.add(Map.of(
-                "id", "5",
-                "name", "伊藤",
-                "email", "ito@test.com",
-                "status", "アクセス禁止"
-        ));
+        accountList.add(new Account(
+                "4",
+                "ADMIN",
+                "高橋",
+                "takahashi@test.com",
+                "password1",
+                "アクセス許可",
+                "false"));
 
-        accountList.add(Map.of(
-                "id", "6",
-                "name", "渡辺",
-                "email", "watanabe@test.com",
-                "status", "アクセス許可"
-        ));
+        accountList.add(new Account(
+                "5",
+                "ADMIN",
+                "伊藤",
+                "ito@test.com",
+                "password1",
+                "アクセス禁止",
+                "false"));
 
-        accountList.add(Map.of(
-                "id", "7",
-                "name", "山本",
-                "email", "yamamoto@test.com",
-                "status", "アクセス禁止"
-        ));
+        accountList.add(new Account(
+                "6",
+                "ADMIN",
+                "渡辺",
+                "watanabe@test.com",
+                "password1",
+                "アクセス許可",
+                "false"));
+
+        accountList.add(new Account(
+                "7",
+                "ADMIN",
+                "山本",
+                "yamamoto@test.com",
+                "password1",
+                "アクセス禁止",
+                "false"));
         
     }
 
@@ -85,13 +107,48 @@ public class AccountController {
             HttpSession session,
             Model model) {
 
-        // 未ログインチェック
-        if (session.getAttribute("loginUser") == null) {
+        // 管理者チェック
+        if (!isAdmin(session)) {
 
             return "redirect:/login";
         }
 
         int pageSize = 5;
+
+        // 削除されていないアカウントだけ取得
+        List<Account> activeList =
+                new ArrayList<>();
+
+        for (Account account : accountList) {
+
+            if (account.getDeleted()
+                    .equals("false")) {
+
+                activeList.add(account);
+            }
+            
+        }
+
+        // 総ページ数
+        int totalPages =
+                (int)Math.ceil(
+                        (double) activeList.size()
+                        / pageSize);
+
+        if (totalPages == 0) {
+
+            totalPages = 1;
+        }
+
+        if (page < 1) {
+
+            page = 1;
+        }
+
+        if (page > totalPages) {
+
+            page = totalPages;
+        }
 
         // 開始位置
         int start =
@@ -101,17 +158,11 @@ public class AccountController {
         int end =
                 Math.min(
                         start + pageSize,
-                        accountList.size());
+                        activeList.size());
 
         // 現在ページ分だけ取得
-        List<Map<String, String>> pageList =
-                accountList.subList(start, end);
-
-        // 総ページ数
-        int totalPages =
-                (int)Math.ceil(
-                        (double) accountList.size()
-                        / pageSize);
+        List<Account> pageList =
+                activeList.subList(start, end);
 
         model.addAttribute(
                 "accountList",
@@ -131,7 +182,7 @@ public class AccountController {
     public String createForm(
             HttpSession session){
 
-        if (session.getAttribute("loginUser") == null) {
+        if (!isAdmin(session)) {
 
             return "redirect:/login";
         }
@@ -162,8 +213,67 @@ public class AccountController {
             @RequestParam(required = false)
             String profile,
 
+            HttpSession session,
             Model model) {
-    	// 名前チェック
+
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
+
+        // 基本項目チェック
+        if (name == null
+                || name.isBlank()) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "名前を入力してください");
+
+            return "account-create";
+        }
+
+        if (email == null
+                || email.isBlank()) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "メールアドレスを入力してください");
+
+            return "account-create";
+        }
+
+        if (password == null
+                || password.isBlank()) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードを入力してください");
+
+            return "account-create";
+        }
+
+        if (role == null
+                || (!role.equals("ADMIN")
+                && !role.equals("USER"))) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "権限が不正です");
+
+            return "account-create";
+        }
+
+        if (status == null
+                || (!status.equals("アクセス許可")
+                && !status.equals("アクセス禁止"))) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "ステータスが不正です");
+
+            return "account-create";
+        }
+
     	if (name.length() > 255) {
 
     	    model.addAttribute(
@@ -203,9 +313,33 @@ public class AccountController {
 
     	    return "account-create";
     	}
+
+        for (Account account : accountList) {
+
+            if (account.getEmail()
+                    .equals(email)) {
+
+                model.addAttribute(
+                        "errorMessage",
+                        "このメールアドレスは既に登録されています");
+
+                return "account-create";
+            }
+        }
  
+        if (role.equals("USER")) {
 
     	    // ふりがな
+            if (furigana == null
+                    || furigana.isBlank()) {
+
+                model.addAttribute(
+                        "errorMessage",
+                        "ふりがなを入力してください");
+
+                return "account-create";
+            }
+
     	    if (furigana.length() > 255) {
 
     	        model.addAttribute(
@@ -226,6 +360,16 @@ public class AccountController {
     	    }
 
     	    // 性別
+            if (gender == null
+                    || gender.isBlank()) {
+
+                model.addAttribute(
+                        "errorMessage",
+                        "性別を選択してください");
+
+                return "account-create";
+            }
+
     	    if (!gender.equals("男性")
     	            && !gender.equals("女性")) {
 
@@ -237,6 +381,16 @@ public class AccountController {
     	    }
 
     	    // 年齢
+            if (age == null
+                    || age.isBlank()) {
+
+                model.addAttribute(
+                        "errorMessage",
+                        "年齢を入力してください");
+
+                return "account-create";
+            }
+
     	    if (!age.matches(
     	            "^[0-9]{1,3}$")) {
 
@@ -248,6 +402,11 @@ public class AccountController {
     	    }
 
     	    // 自己紹介
+            if (profile == null) {
+
+                profile = "";
+            }
+
     	    if (profile.length() > 1500) {
 
     	        model.addAttribute(
@@ -256,7 +415,6 @@ public class AccountController {
 
     	        return "account-create";
     	    }
-    	   	if (role.equals("USER")) {
 
         	    // 画像サイズ
         	    if (profileImage != null
@@ -268,27 +426,27 @@ public class AccountController {
 
         	    	return "account-create";
         	    }
-        	    		    }
+        }
     	    String newId =
     	            String.valueOf(
     	                    accountList.size() + 1);
 
-    	    Map<String, String> account =
-    	            new HashMap<>();
-
-    	    account.put("id", newId);
-    	    account.put("role", role);
-    	    account.put("name", name);
-    	    account.put("email", email);
-    	    account.put("password", password);
-    	    account.put("status", status);
+    	    Account account =
+    	            new Account(
+    	                    newId,
+    	                    role,
+    	                    name,
+    	                    email,
+    	                    password,
+    	                    status,
+    	                    "false");
 
     	    if (role.equals("USER")) {
 
-    	        account.put("furigana", furigana);
-    	        account.put("gender", gender);
-    	        account.put("age", age);
-    	        account.put("profile", profile);
+    	        account.setFurigana(furigana);
+    	        account.setGender(gender);
+    	        account.setAge(age);
+    	        account.setProfile(profile);
     	    }
 
     	    accountList.add(account);
@@ -300,11 +458,29 @@ public class AccountController {
 
     @PostMapping("/accounts/delete/{id}")
     public String deleteAccount(
-            @PathVariable String id) {
+            @PathVariable String id,
+            HttpSession session) {
 
-        accountList.removeIf(
-                account ->
-                account.get("id").equals(id));
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
+
+        for (int i = 0;
+                i < accountList.size();
+                i++) {
+
+            Account account =
+                    accountList.get(i);
+
+            if (account.getId()
+                    .equals(id)) {
+
+                account.setDeleted("true");
+
+                break;
+            }
+        }
 
         return "redirect:/accounts";
     }
@@ -314,16 +490,16 @@ public class AccountController {
             HttpSession session,
             Model model) {
 
-        // 未ログインチェック
-        if (session.getAttribute("loginUser") == null) {
+        // 管理者チェック
+        if (!isAdmin(session)) {
 
             return "redirect:/login";
         }
 
         // id一致検索
-        for (Map<String, String> account : accountList) {
+        for (Account account : accountList) {
 
-            if (account.get("id").equals(id)) {
+            if (account.getId().equals(id)) {
 
                 model.addAttribute(
                         "account",
@@ -340,22 +516,25 @@ public class AccountController {
 
             @RequestParam String name,
             @RequestParam String email,
-            @RequestParam String status) {
+            @RequestParam String status,
+
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
 
         for (int i = 0; i < accountList.size(); i++) {
 
-            Map<String, String> account =
+            Account account =
                     accountList.get(i);
 
-            if (account.get("id").equals(id)) {
+            if (account.getId().equals(id)) {
 
-                accountList.set(i,
-                        Map.of(
-                            "id", id,
-                            "name", name,
-                            "email", email,
-                            "status", status
-                        ));
+            	account.setName(name);
+            	account.setEmail(email);
+            	account.setStatus(status);
 
                 break;
             }
@@ -365,19 +544,25 @@ public class AccountController {
     }
     @PostMapping("/accounts/status/{id}")
     public String changeStatus(
-            @PathVariable String id) {
+            @PathVariable String id,
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
 
         for (int i = 0; i < accountList.size(); i++) {
 
-            Map<String, String> account =
+            Account account =
                     accountList.get(i);
 
-            if (account.get("id").equals(id)) {
+            if (account.getId().equals(id)) {
 
                 String newStatus;
 
                 // 切替
-                if (account.get("status")
+                if (account.getStatus()
                         .equals("アクセス許可")) {
 
                     newStatus = "アクセス禁止";
@@ -388,13 +573,7 @@ public class AccountController {
                 }
 
                 // 更新
-                accountList.set(i,
-                        Map.of(
-                            "id", account.get("id"),
-                            "name", account.get("name"),
-                            "email", account.get("email"),
-                            "status", newStatus
-                        ));
+                account.setStatus(newStatus);
 
                 break;
             }
@@ -403,6 +582,74 @@ public class AccountController {
         return "redirect:/accounts";
     }
  
-    
-    
+    @GetMapping("/accounts/deleted")
+    public String deletedAccounts(
+    		HttpSession session,
+    		Model model) {
+
+		// 管理者チェック
+		if (!isAdmin(session)) {
+
+			return "redirect:/login";
+		}
+
+		List<Account> deletedList =
+				new ArrayList<>();
+
+		for (Account account : accountList) {
+
+			if (account.getDeleted()
+					.equals("true")) {
+
+				deletedList.add(account);
+			}
+		}
+
+		model.addAttribute(
+				"deletedList",
+				deletedList);
+
+		return "deleted-accounts";
+    }
+    @PostMapping("/accounts/restore/{id}")
+    public String restoreAccount(
+            @PathVariable String id,
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
+
+        for (int i = 0; i < accountList.size(); i++) {
+
+            Account account =
+                    accountList.get(i);
+
+            if (account.getId().equals(id)) {
+
+                account.setDeleted("false");
+
+                break;
+            }
+        }
+
+        return "redirect:/accounts/deleted";
+    }
+    @PostMapping("/accounts/permanent-delete/{id}")
+    public String permanentDeleteAccount(
+            @PathVariable String id,
+            HttpSession session) {
+
+        if (!isAdmin(session)) {
+
+            return "redirect:/login";
+        }
+
+        accountList.removeIf(
+                account ->
+                account.getId().equals(id));
+
+        return "redirect:/accounts/deleted";
+    }
 }

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+<meta charset="UTF-8">
+<title>お問い合わせ詳細</title>
+
+<style>
+
+.content-box {
+    white-space: pre-wrap;
+    border: 1px solid #ccc;
+    padding: 15px;
+    min-height: 120px;
+}
+
+</style>
+
+</head>
+
+<body>
+<div class="container mt-5">
+
+<h1 class="mb-4">お問い合わせ詳細</h1>
+
+<table class="table table-bordered">
+
+    <tr>
+        <th>カテゴリー</th>
+        <td th:text="${contact.category}">
+        </td>
+    </tr>
+
+    <tr>
+        <th>ステータス</th>
+        <td th:text="${contact.status}">
+        </td>
+    </tr>
+
+</table>
+
+<h2 class="h4">本文</h2>
+
+<div class="content-box"
+     th:text="${contact.content}">
+</div>
+
+<br>
+
+<form th:action="@{/contacts/status/{id}(id=${contact.id})}"
+      method="post">
+
+    <label for="status">
+        ステータス変更
+    </label>
+
+    <select id="status"
+            name="status"
+            class="form-select">
+
+        <option value="未対応"
+                th:selected="${contact.status == '未対応'}">
+            未対応
+        </option>
+
+        <option value="対応中"
+                th:selected="${contact.status == '対応中'}">
+            対応中
+        </option>
+
+        <option value="対応済み"
+                th:selected="${contact.status == '対応済み'}">
+            対応済み
+        </option>
+
+    </select>
+
+    <br>
+
+    <button type="submit"
+            class="btn btn-primary">
+        更新
+    </button>
+
+</form>
+
+<br>
+
+<a href="/contacts"
+   class="btn btn-secondary">
+    お問い合わせ一覧へ戻る
+</a>
+
+</div>
+</body>
+</html>
