@@ -1,11 +1,9 @@
 package com.example.demo.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.servlet.http.HttpSession;
 
 import com.example.demo.model.Category;
+import com.example.demo.repository.CategoryRepository;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,23 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class CategoryController {
 
-    // 仮DB
-    private List<Category> categoryList =
-            new ArrayList<>();
+    private final CategoryRepository categoryRepository;
 
-    public CategoryController() {
+    public CategoryController(
+            CategoryRepository categoryRepository) {
 
-        categoryList.add(new Category(
-                "1",
-                "不具合"));
-
-        categoryList.add(new Category(
-                "2",
-                "要望"));
-
-        categoryList.add(new Category(
-                "3",
-                "質問"));
+        this.categoryRepository = categoryRepository;
     }
 
     private boolean isAdmin(
@@ -55,7 +42,7 @@ public class CategoryController {
 
         model.addAttribute(
                 "categoryList",
-                categoryList);
+                categoryRepository.findAll());
 
         return "categories";
     }
@@ -92,12 +79,7 @@ public class CategoryController {
             return "category-create";
         }
 
-        String newId =
-                String.valueOf(
-                        categoryList.size() + 1);
-
-        categoryList.add(new Category(
-                newId,
+        categoryRepository.save(new Category(
                 name));
 
         return "redirect:/categories";
@@ -105,7 +87,7 @@ public class CategoryController {
 
     @GetMapping("/categories/edit/{id}")
     public String editCategory(
-            @PathVariable String id,
+            @PathVariable Long id,
             HttpSession session,
             Model model) {
 
@@ -114,24 +96,25 @@ public class CategoryController {
             return "redirect:/login";
         }
 
-        for (Category category : categoryList) {
+        Category category =
+                categoryRepository.findById(id)
+                        .orElse(null);
 
-            if (category.getId().equals(id)) {
+        if (category == null) {
 
-                model.addAttribute(
-                        "category",
-                        category);
-
-                return "category-edit";
-            }
+            return "redirect:/categories";
         }
 
-        return "redirect:/categories";
+        model.addAttribute(
+                "category",
+                category);
+
+        return "category-edit";
     }
 
     @PostMapping("/categories/update/{id}")
     public String updateCategory(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestParam String name,
             HttpSession session,
             Model model) {
@@ -143,35 +126,41 @@ public class CategoryController {
 
         if (name.length() > 255) {
 
+            Category category =
+                    new Category(
+                            name);
+
+            category.setId(id);
+
             model.addAttribute(
                     "errorMessage",
                     "名前は255文字以内です");
 
             model.addAttribute(
                     "category",
-                    new Category(
-                            id,
-                            name));
+                    category);
 
             return "category-edit";
         }
 
-        for (Category category : categoryList) {
+        Category category =
+                categoryRepository.findById(id)
+                        .orElse(null);
 
-            if (category.getId().equals(id)) {
+        if (category == null) {
 
-                category.setName(name);
-
-                break;
-            }
+            return "redirect:/categories";
         }
+
+        category.setName(name);
+        categoryRepository.save(category);
 
         return "redirect:/categories";
     }
 
     @PostMapping("/categories/delete/{id}")
     public String deleteCategory(
-            @PathVariable String id,
+            @PathVariable Long id,
             HttpSession session) {
 
         if (!isAdmin(session)) {
@@ -179,9 +168,7 @@ public class CategoryController {
             return "redirect:/login";
         }
 
-        categoryList.removeIf(
-                category ->
-                category.getId().equals(id));
+        categoryRepository.deleteById(id);
 
         return "redirect:/categories";
     }
