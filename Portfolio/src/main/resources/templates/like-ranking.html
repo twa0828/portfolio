@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<link
+	    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	    rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>月のいいねランキング</title>
+</head>
+
+<body>
+<div class="container mt-5">
+
+<h1 class="mb-4">月のいいねランキング</h1>
+
+<div th:if="${#lists.isEmpty(userList)}">
+    <p>表示できる一般ユーザーはいません。</p>
+</div>
+
+<table class="table"
+       th:if="${!#lists.isEmpty(userList)}">
+
+    <tr>
+        <th>順位</th>
+        <th>名前</th>
+        <th>ふりがな</th>
+        <th>月間いいね</th>
+        <th>年間いいね</th>
+        <th>詳細</th>
+        <th>操作</th>
+    </tr>
+
+    <tr th:each="account, stat : ${userList}">
+        <td th:text="${stat.count}"></td>
+        <td th:text="${account.name}"></td>
+        <td th:text="${account.furigana}"></td>
+        <td>
+            <span th:id="'monthly-likes-' + ${account.id}"
+                  th:text="${account.monthlyLikes}">
+            </span>
+            件
+        </td>
+        <td>
+            <span th:id="'annual-likes-' + ${account.id}"
+                  th:text="${account.annualLikes}">
+            </span>
+            件
+        </td>
+        <td>
+            <a th:href="@{/introductions/{id}(id=${account.id})}"
+               class="btn btn-secondary">
+                詳細
+            </a>
+        </td>
+        <td>
+            <button type="button"
+                    class="btn btn-primary"
+                    th:onclick="'likeAccount(' + ${account.id} + ')'">
+                いいね
+            </button>
+        </td>
+    </tr>
+</table>
+
+<a href="/user"
+   class="btn btn-secondary">
+    ダッシュボードへ戻る
+</a>
+
+</div>
+
+<script>
+function likeAccount(id) {
+
+    fetch("/introductions/like/" + id, {
+        method: "POST"
+    })
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error("like failed");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+
+        document.getElementById(
+            "monthly-likes-" + id
+        ).textContent = data.monthlyLikes;
+
+        document.getElementById(
+            "annual-likes-" + id
+        ).textContent = data.annualLikes;
+    })
+    .catch(() => {
+
+        alert("いいねに失敗しました");
+    });
+}
+</script>
+</body>
+</html>

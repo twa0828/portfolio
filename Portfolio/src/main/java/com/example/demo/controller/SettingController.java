@@ -2,6 +2,9 @@ package com.example.demo.controller;
 
 import java.util.regex.Pattern;
 
+import com.example.demo.model.Account;
+import com.example.demo.repository.AccountRepository;
+
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class SettingController {
 
+    private final AccountRepository accountRepository;
+
+    public SettingController(
+            AccountRepository accountRepository) {
+
+        this.accountRepository = accountRepository;
+    }
+
     private boolean isUser(
             HttpSession session) {
 
@@ -22,13 +33,25 @@ public class SettingController {
 
     @GetMapping("/settings")
     public String settings(
-            HttpSession session) {
+            HttpSession session,
+            Model model) {
 
-        // 一般ユーザーチェック
         if (!isUser(session)) {
 
             return "redirect:/login";
         }
+
+        Account account =
+                getLoginAccount(session);
+
+        if (account == null) {
+
+            return "redirect:/login";
+        }
+
+        model.addAttribute(
+                "account",
+                account);
 
         return "settings";
     }
@@ -38,18 +61,27 @@ public class SettingController {
 
             @RequestParam String email,
             @RequestParam String password,
-            @RequestParam String name,
 
             HttpSession session,
             Model model) {
 
-        // 一般ユーザーチェック
         if (!isUser(session)) {
 
             return "redirect:/login";
         }
 
-        // メールチェック
+        Account account =
+                getLoginAccount(session);
+
+        if (account == null) {
+
+            return "redirect:/login";
+        }
+
+        model.addAttribute(
+                "account",
+                account);
+
         if (email.length() > 255) {
 
             model.addAttribute(
@@ -70,7 +102,20 @@ public class SettingController {
             return "settings";
         }
 
-        // パスワードチェック
+        Account sameEmailAccount =
+                accountRepository.findByEmail(email)
+                        .orElse(null);
+
+        if (sameEmailAccount != null
+                && !sameEmailAccount.getId().equals(account.getId())) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "このメールアドレスは既に登録されています");
+
+            return "settings";
+        }
+
         if (!password.matches(
                 "^[a-zA-Z0-9_-]{8,32}$")) {
 
@@ -81,21 +126,33 @@ public class SettingController {
             return "settings";
         }
 
-        // 名前チェック
-        if (name.length() > 255) {
+        account.setEmail(email);
+        account.setPassword(password);
 
-            model.addAttribute(
-                    "errorMessage",
-                    "名前は255文字以内で入力してください");
+        accountRepository.save(account);
 
-            return "settings";
-        }
+        session.setAttribute(
+                "loginUser",
+                account.getEmail());
 
-        // 成功メッセージ
+        model.addAttribute(
+                "account",
+                account);
+
         model.addAttribute(
                 "successMessage",
                 "設定を更新しました");
 
         return "settings";
+    }
+
+    private Account getLoginAccount(
+            HttpSession session) {
+
+        String email =
+                (String) session.getAttribute("loginUser");
+
+        return accountRepository.findByEmail(email)
+                .orElse(null);
     }
 }

@@ -1,8 +1,19 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+
+@Entity
 public class Account {
 
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String role;
     private String name;
     private String email;
@@ -12,10 +23,21 @@ public class Account {
     private String furigana;
     private String gender;
     private String age;
+    private Integer annualLikes;
+    private Integer monthlyLikes;
+
+    @Column(length = 1500)
     private String profile;
 
+    @Lob
+    private byte[] profileImage;
+
+    private String profileImageContentType;
+
+    public Account() {
+    }
+
     public Account(
-            String id,
             String role,
             String name,
             String email,
@@ -23,20 +45,21 @@ public class Account {
             String status,
             String deleted) {
 
-        this.id = id;
         this.role = role;
         this.name = name;
         this.email = email;
         this.password = password;
         this.status = status;
         this.deleted = deleted;
+        this.annualLikes = 0;
+        this.monthlyLikes = 0;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -112,11 +135,55 @@ public class Account {
         this.age = age;
     }
 
+    public Integer getAnnualLikes() {
+
+        if (annualLikes == null) {
+
+            return 0;
+        }
+
+        return annualLikes;
+    }
+
+    public void setAnnualLikes(Integer annualLikes) {
+        this.annualLikes = annualLikes;
+    }
+
+    public Integer getMonthlyLikes() {
+
+        if (monthlyLikes == null) {
+
+            return 0;
+        }
+
+        return monthlyLikes;
+    }
+
+    public void setMonthlyLikes(Integer monthlyLikes) {
+        this.monthlyLikes = monthlyLikes;
+    }
+
     public String getProfile() {
         return profile;
     }
 
     public void setProfile(String profile) {
         this.profile = profile;
+    }
+
+    public byte[] getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(byte[] profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getProfileImageContentType() {
+        return profileImageContentType;
+    }
+
+    public void setProfileImageContentType(String profileImageContentType) {
+        this.profileImageContentType = profileImageContentType;
     }
 }

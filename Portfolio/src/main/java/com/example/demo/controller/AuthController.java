@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Account;
+import com.example.demo.repository.AccountRepository;
+
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -11,14 +14,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class AuthController {
 
-    // ログイン画面表示
+    private final AccountRepository accountRepository;
+
+    public AuthController(
+            AccountRepository accountRepository) {
+
+        this.accountRepository = accountRepository;
+    }
+
     @GetMapping("/login")
     public String login() {
 
         return "login";
     }
 
-    // ログイン処理
     @PostMapping("/login")
     public String doLogin(
             @RequestParam String userId,
@@ -26,43 +35,102 @@ public class AuthController {
             HttpSession session,
             Model model) {
 
-        // 管理者ログイン
-        if (userId.equals("admin")
-                && password.equals("1234abcd")) {
+        if (userId == null
+                || userId.isBlank()) {
 
-            session.setAttribute(
-                    "loginUser",
-                    userId);
+            model.addAttribute(
+                    "errorMessage",
+                    "メールアドレスを入力してください");
 
-            session.setAttribute(
-                    "role",
-                    "ADMIN");
+            return "login";
+        }
+
+        if (userId.length() > 255) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "メールアドレスは255文字以内で入力してください");
+
+            return "login";
+        }
+
+        if (password == null
+                || password.isBlank()) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードを入力してください");
+
+            return "login";
+        }
+
+        if (!password.matches(
+                "^[a-zA-Z0-9_-]{8,32}$")) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードは8〜32文字の半角英数字と_-のみ使用できます");
+
+            return "login";
+        }
+
+        Account account =
+                accountRepository.findByEmail(userId)
+                        .orElse(null);
+
+        if (account == null
+                || !account.getPassword().equals(password)) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "IDまたはパスワードが違います");
+
+            return "login";
+        }
+
+        if (!"アクセス許可".equals(account.getStatus())) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "このアカウントはアクセス禁止です");
+
+            return "login";
+        }
+
+        if ("true".equals(account.getDeleted())) {
+
+            model.addAttribute(
+                    "errorMessage",
+                    "このアカウントは削除されています");
+
+            return "login";
+        }
+
+        session.setAttribute(
+                "loginUser",
+                account.getEmail());
+
+        session.setAttribute(
+                "role",
+                account.getRole());
+
+        if ("ADMIN".equals(account.getRole())) {
 
             return "redirect:/admin";
         }
-     // 一般ユーザー
-        if (userId.equals("user")
-                && password.equals("1234abcd")) {
 
-            session.setAttribute(
-                    "loginUser",
-                    userId);
-
-            session.setAttribute(
-                    "role",
-                    "USER");
+        if ("USER".equals(account.getRole())) {
 
             return "redirect:/user";
         }
 
         model.addAttribute(
                 "errorMessage",
-                "IDまたはパスワードが違います");
+                "権限が不正です");
 
         return "login";
     }
 
-    // ログアウト
     @PostMapping("/logout")
     public String logout(HttpSession session) {
 
