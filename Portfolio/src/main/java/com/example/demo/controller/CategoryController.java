@@ -1,5 +1,9 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.servlet.http.HttpSession;
 
 import com.example.demo.model.Category;
@@ -40,9 +44,20 @@ public class CategoryController {
             return "redirect:/login";
         }
 
+        List<Category> categoryList =
+                new ArrayList<>();
+
+        for (Category category : categoryRepository.findAll()) {
+
+            if (!"true".equals(category.getDeleted())) {
+
+                categoryList.add(category);
+            }
+        }
+
         model.addAttribute(
                 "categoryList",
-                categoryRepository.findAll());
+                categoryList);
 
         return "categories";
     }
@@ -105,6 +120,11 @@ public class CategoryController {
             return "redirect:/categories";
         }
 
+        if ("true".equals(category.getDeleted())) {
+
+            return "redirect:/categories";
+        }
+
         model.addAttribute(
                 "category",
                 category);
@@ -152,6 +172,11 @@ public class CategoryController {
             return "redirect:/categories";
         }
 
+        if ("true".equals(category.getDeleted())) {
+
+            return "redirect:/categories";
+        }
+
         category.setName(name);
         categoryRepository.save(category);
 
@@ -168,7 +193,16 @@ public class CategoryController {
             return "redirect:/login";
         }
 
-        categoryRepository.deleteById(id);
+        Category category =
+                categoryRepository.findById(id)
+                        .orElse(null);
+
+        if (category != null) {
+
+            category.setDeleted("true");
+            category.setDeletedAt(LocalDateTime.now());
+            categoryRepository.save(category);
+        }
 
         return "redirect:/categories";
     }

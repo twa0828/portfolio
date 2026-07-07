@@ -52,6 +52,11 @@ public class ContactController {
 
         for (Contact contact : contactRepository.findAll()) {
 
+            if ("true".equals(contact.getDeleted())) {
+
+                continue;
+            }
+
             if (!status.equals("all")
                     && !contact.getStatus().equals(status)) {
 
@@ -88,6 +93,11 @@ public class ContactController {
                         .orElse(null);
 
         if (contact == null) {
+
+            return "redirect:/contacts";
+        }
+
+        if ("true".equals(contact.getDeleted())) {
 
             return "redirect:/contacts";
         }

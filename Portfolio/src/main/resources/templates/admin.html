@@ -106,9 +106,16 @@ body {
 
             <h2>年間いいねランキング</h2>
 
-            <ul>
-                <li th:each="ranking : ${yearRankingList}"
-                    th:text="${ranking}">
+            <p th:if="${#lists.isEmpty(yearRankingList)}">
+                表示できるユーザーがいません。
+            </p>
+
+            <ul th:if="${!#lists.isEmpty(yearRankingList)}">
+                <li th:each="account : ${yearRankingList}">
+                    <span th:text="${account.name}"></span>
+                    :
+                    <span th:text="${account.annualLikes}"></span>
+                    いいね
                 </li>
             </ul>
 
@@ -119,9 +126,16 @@ body {
 
             <h2>月間いいねランキング</h2>
 
-            <ul>
-                <li th:each="ranking : ${monthRankingList}"
-                    th:text="${ranking}">
+            <p th:if="${#lists.isEmpty(monthRankingList)}">
+                表示できるユーザーがいません。
+            </p>
+
+            <ul th:if="${!#lists.isEmpty(monthRankingList)}">
+                <li th:each="account : ${monthRankingList}">
+                    <span th:text="${account.name}"></span>
+                    :
+                    <span th:text="${account.monthlyLikes}"></span>
+                    いいね
                 </li>
             </ul>
 

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -387,6 +388,7 @@ public class AccountController {
         accountRepository.findById(id)
                 .ifPresent(account -> {
                     account.setDeleted("true");
+                    account.setDeletedAt(LocalDateTime.now());
                     accountRepository.save(account);
                 });
 
@@ -756,6 +758,7 @@ public class AccountController {
         accountRepository.findById(id)
                 .ifPresent(account -> {
                     account.setDeleted("false");
+                    account.setDeletedAt(null);
                     accountRepository.save(account);
                 });
 

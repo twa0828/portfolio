@@ -1,11 +1,15 @@
 package com.example.demo.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 @Entity
 public class Account {
@@ -33,6 +37,9 @@ public class Account {
     private byte[] profileImage;
 
     private String profileImageContentType;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public Account() {
     }
@@ -53,6 +60,23 @@ public class Account {
         this.deleted = deleted;
         this.annualLikes = 0;
         this.monthlyLikes = 0;
+    }
+
+    @PrePersist
+    public void prePersist() {
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+
+        this.updatedAt =
+                LocalDateTime.now();
     }
 
     public Long getId() {
@@ -185,5 +209,29 @@ public class Account {
 
     public void setProfileImageContentType(String profileImageContentType) {
         this.profileImageContentType = profileImageContentType;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
