@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.service.PasswordService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,11 +23,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class AccountController {
 
     private final AccountRepository accountRepository;
+    private final PasswordService passwordService;
 
     public AccountController(
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            PasswordService passwordService) {
 
         this.accountRepository = accountRepository;
+        this.passwordService = passwordService;
     }
 
     private boolean isAdmin(
@@ -358,7 +362,7 @@ public class AccountController {
                         role,
                         name,
                         email,
-                        password,
+                        passwordService.encode(password),
                         status,
                         "false");
 

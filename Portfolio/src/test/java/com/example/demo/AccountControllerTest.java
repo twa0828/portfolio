@@ -64,6 +64,12 @@ class AccountControllerTest {
         assertThat(account.getStatus())
                 .isEqualTo("アクセス許可");
 
+        assertThat(account.getPassword())
+                .isNotEqualTo("password1");
+
+        assertThat(account.getPassword())
+                .startsWith("$2");
+
         assertThat(account.getDeleted())
                 .isEqualTo("false");
 

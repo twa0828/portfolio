@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -49,6 +50,16 @@ class AuthControllerTest {
                         .param("password", "password1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin"));
+
+        Account account =
+                accountRepository.findByEmail("admin@test.com")
+                        .orElseThrow();
+
+        assertThat(account.getPassword())
+                .isNotEqualTo("password1");
+
+        assertThat(account.getPassword())
+                .startsWith("$2");
     }
 
     @Test

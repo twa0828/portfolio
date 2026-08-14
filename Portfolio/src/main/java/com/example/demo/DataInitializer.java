@@ -6,6 +6,7 @@ import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ContactRepository;
+import com.example.demo.service.PasswordService;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,15 +18,18 @@ public class DataInitializer
     private final CategoryRepository categoryRepository;
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
+    private final PasswordService passwordService;
 
     public DataInitializer(
             CategoryRepository categoryRepository,
             ContactRepository contactRepository,
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            PasswordService passwordService) {
 
         this.categoryRepository = categoryRepository;
         this.contactRepository = contactRepository;
         this.accountRepository = accountRepository;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class DataInitializer
                     "ADMIN",
                     "田中",
                     "tanaka@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス許可",
                     "false"));
 
@@ -76,7 +80,7 @@ public class DataInitializer
                     "ADMIN",
                     "佐藤",
                     "sato@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス禁止",
                     "false"));
 
@@ -84,7 +88,7 @@ public class DataInitializer
                     "ADMIN",
                     "鈴木",
                     "suzuki@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス許可",
                     "false"));
 
@@ -92,7 +96,7 @@ public class DataInitializer
                     "ADMIN",
                     "高橋",
                     "takahashi@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス許可",
                     "false"));
 
@@ -100,7 +104,7 @@ public class DataInitializer
                     "ADMIN",
                     "伊藤",
                     "ito@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス禁止",
                     "false"));
 
@@ -108,7 +112,7 @@ public class DataInitializer
                     "ADMIN",
                     "渡辺",
                     "watanabe@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス許可",
                     "false"));
 
@@ -116,7 +120,7 @@ public class DataInitializer
                     "ADMIN",
                     "山本",
                     "yamamoto@test.com",
-                    "password1",
+                    passwordService.encode("password1"),
                     "アクセス禁止",
                     "false"));
         }

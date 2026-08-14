@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.service.PasswordService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -15,11 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AuthController {
 
     private final AccountRepository accountRepository;
+    private final PasswordService passwordService;
 
     public AuthController(
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            PasswordService passwordService) {
 
         this.accountRepository = accountRepository;
+        this.passwordService = passwordService;
     }
 
     @GetMapping("/login")
@@ -79,13 +83,24 @@ public class AuthController {
                         .orElse(null);
 
         if (account == null
-                || !account.getPassword().equals(password)) {
+                || !passwordService.matches(
+                        password,
+                        account.getPassword())) {
 
             model.addAttribute(
                     "errorMessage",
                     "IDまたはパスワードが違います");
 
             return "login";
+        }
+
+        if (passwordService.needsHashing(
+                account.getPassword())) {
+
+            account.setPassword(
+                    passwordService.encode(password));
+
+            accountRepository.save(account);
         }
 
         if (!"アクセス許可".equals(account.getStatus())) {

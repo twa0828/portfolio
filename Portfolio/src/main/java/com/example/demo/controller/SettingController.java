@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.service.PasswordService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -17,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SettingController {
 
     private final AccountRepository accountRepository;
+    private final PasswordService passwordService;
 
     public SettingController(
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            PasswordService passwordService) {
 
         this.accountRepository = accountRepository;
+        this.passwordService = passwordService;
     }
 
     private boolean isUser(
@@ -127,7 +131,8 @@ public class SettingController {
         }
 
         account.setEmail(email);
-        account.setPassword(password);
+        account.setPassword(
+                passwordService.encode(password));
 
         accountRepository.save(account);
 
