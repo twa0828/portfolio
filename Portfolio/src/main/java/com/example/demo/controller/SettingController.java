@@ -57,6 +57,10 @@ public class SettingController {
                 "account",
                 account);
 
+        model.addAttribute(
+                "emailInput",
+                account.getEmail());
+
         return "settings";
     }
 
@@ -85,6 +89,9 @@ public class SettingController {
         model.addAttribute(
                 "account",
                 account);
+
+        model.addAttribute("emailInput", email);
+        model.addAttribute("passwordInput", password);
 
         if (email.length() > 255) {
 
@@ -120,8 +127,10 @@ public class SettingController {
             return "settings";
         }
 
-        if (!password.matches(
-                "^[a-zA-Z0-9_-]{8,32}$")) {
+        if (password != null
+                && !password.isBlank()
+                && !password.matches(
+                        "^[a-zA-Z0-9_-]{8,32}$")) {
 
             model.addAttribute(
                     "errorMessage",
@@ -131,8 +140,13 @@ public class SettingController {
         }
 
         account.setEmail(email);
-        account.setPassword(
-                passwordService.encode(password));
+
+        if (password != null
+                && !password.isBlank()) {
+
+            account.setPassword(
+                    passwordService.encode(password));
+        }
 
         accountRepository.save(account);
 
@@ -143,6 +157,9 @@ public class SettingController {
         model.addAttribute(
                 "account",
                 account);
+
+        model.addAttribute("emailInput", account.getEmail());
+        model.addAttribute("passwordInput", "");
 
         model.addAttribute(
                 "successMessage",

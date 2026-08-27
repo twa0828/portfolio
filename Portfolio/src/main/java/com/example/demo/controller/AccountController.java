@@ -158,6 +158,16 @@ public class AccountController {
             return "redirect:/login";
         }
 
+        model.addAttribute("roleInput", role);
+        model.addAttribute("nameInput", name);
+        model.addAttribute("emailInput", email);
+        model.addAttribute("passwordInput", password);
+        model.addAttribute("statusInput", status);
+        model.addAttribute("furiganaInput", furigana);
+        model.addAttribute("genderInput", gender);
+        model.addAttribute("ageInput", age);
+        model.addAttribute("profileInput", profile);
+
         if (name == null
                 || name.isBlank()) {
 

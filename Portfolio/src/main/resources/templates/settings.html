@@ -52,7 +52,7 @@
 
         <input type="text"
                name="email"
-               th:value="${account.email}"
+               th:value="${emailInput}"
 			   class="form-control">
 
     </div>
@@ -61,13 +61,14 @@
 
     <div>
 
-        パスワード
+        新しいパスワード（変更しない場合は空欄）
 
         <br>
 
         <input type="password"
                name="password"
-               th:value="${account.password}"
+			   th:value="${passwordInput}"
+			   autocomplete="new-password"
 			   class="form-control">
 
     </div>

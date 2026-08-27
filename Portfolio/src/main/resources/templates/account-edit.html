@@ -154,6 +154,7 @@ window.addEventListener(
 
             <input type="file"
                    name="profileImage"
+                   accept="image/*"
                    class="form-control">
 
         </div>
@@ -224,8 +225,7 @@ window.addEventListener(
             <textarea name="profile"
                       class="form-control"
                       rows="6"
-                      th:text="${account.profile}">
-            </textarea>
+                      th:text="${account.profile}"></textarea>
 
         </div>
 
@@ -246,5 +246,6 @@ window.addEventListener(
     アカウント一覧へ戻る
 </a>
 </div>
+<script src="/js/profile-image-validation.js"></script>
 </body>
 </html>

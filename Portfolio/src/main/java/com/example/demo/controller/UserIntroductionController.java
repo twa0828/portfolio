@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -43,14 +44,13 @@ public class UserIntroductionController {
             HttpSession session,
             Model model) {
 
-        if (!isUser(session)) {
-
-            return "redirect:/login";
-        }
-
         model.addAttribute(
                 "userList",
                 getPublicUserList(session));
+
+        model.addAttribute(
+                "loggedInUser",
+                isUser(session));
 
         return "introductions";
     }
@@ -59,11 +59,6 @@ public class UserIntroductionController {
     public String likeRanking(
             HttpSession session,
             Model model) {
-
-        if (!isUser(session)) {
-
-            return "redirect:/login";
-        }
 
         List<Account> userList =
                 getPublicUserList(session);
@@ -77,6 +72,10 @@ public class UserIntroductionController {
                 "userList",
                 userList);
 
+        model.addAttribute(
+                "loggedInUser",
+                isUser(session));
+
         return "like-ranking";
     }
 
@@ -85,11 +84,6 @@ public class UserIntroductionController {
             @PathVariable Long id,
             HttpSession session,
             Model model) {
-
-        if (!isUser(session)) {
-
-            return "redirect:/login";
-        }
 
         Account account =
                 accountRepository.findById(id)
@@ -104,6 +98,10 @@ public class UserIntroductionController {
                 "account",
                 account);
 
+        model.addAttribute(
+                "loggedInUser",
+                isUser(session));
+
         return "introduction-detail";
     }
 
@@ -111,12 +109,6 @@ public class UserIntroductionController {
     public ResponseEntity<byte[]> introductionImage(
             @PathVariable Long id,
             HttpSession session) {
-
-        if (!isUser(session)) {
-
-            return ResponseEntity.notFound()
-                    .build();
-        }
 
         Account account =
                 accountRepository.findById(id)
@@ -148,12 +140,6 @@ public class UserIntroductionController {
     public ResponseEntity<Map<String, Integer>> like(
             @PathVariable Long id,
             HttpSession session) {
-
-        if (!isUser(session)) {
-
-            return ResponseEntity.status(401)
-                    .build();
-        }
 
         Account account =
                 accountRepository.findById(id)
@@ -187,14 +173,43 @@ public class UserIntroductionController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/introductions/like-page/{id}")
+    public String likeFromPage(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "introductions") String returnTo,
+            HttpSession session) {
+
+        Account account =
+                accountRepository.findById(id)
+                        .orElse(null);
+
+        if (isPublicUser(account, session)) {
+
+            account.setAnnualLikes(
+                    account.getAnnualLikes() + 1);
+
+            account.setMonthlyLikes(
+                    account.getMonthlyLikes() + 1);
+
+            accountRepository.save(account);
+        }
+
+        if ("ranking".equals(returnTo)) {
+            return "redirect:/like-ranking";
+        }
+
+        if ("detail".equals(returnTo)) {
+            return "redirect:/introductions/" + id;
+        }
+
+        return "redirect:/introductions";
+    }
+
     private List<Account> getPublicUserList(
             HttpSession session) {
 
         List<Account> userList =
                 new ArrayList<>();
-
-        String loginEmail =
-                (String) session.getAttribute("loginUser");
 
         for (Account account : accountRepository.findAll()) {
 

@@ -46,6 +46,7 @@
 
         <input type="file"
                name="profileImage"
+               accept="image/*"
                class="form-control">
     </div>
 
@@ -110,8 +111,7 @@
         <textarea name="profile"
                   class="form-control"
                   rows="6"
-                  th:text="${account.profile}">
-        </textarea>
+                  th:text="${account.profile}"></textarea>
     </div>
 
     <button type="submit"
@@ -126,5 +126,6 @@
 </form>
 
 </div>
+<script src="/js/profile-image-validation.js"></script>
 </body>
 </html>

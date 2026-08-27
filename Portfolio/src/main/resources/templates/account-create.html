@@ -63,7 +63,7 @@ function changeRole() {
         <input type="radio"
                name="role"
                value="ADMIN"
-               checked
+               th:checked="${roleInput == null or roleInput == 'ADMIN'}"
                onchange="changeRole()">
 
         管理者
@@ -71,6 +71,7 @@ function changeRole() {
         <input type="radio"
                name="role"
                value="USER"
+               th:checked="${roleInput == 'USER'}"
                onchange="changeRole()">
 
         一般ユーザー
@@ -88,6 +89,7 @@ function changeRole() {
 
         <input type="text"
                name="name"
+			   th:value="${nameInput}"
 			   class="form-control">
 
     </div>
@@ -103,6 +105,7 @@ function changeRole() {
 
         <input type="text"
                name="email"
+			   th:value="${emailInput}"
 			   class="form-control">
 
     </div>
@@ -118,6 +121,7 @@ function changeRole() {
 
         <input type="password"
                name="password"
+			   th:value="${passwordInput}"
 			   class="form-control">
 
     </div>
@@ -133,11 +137,13 @@ function changeRole() {
 
         <select name="status">
 
-            <option value="アクセス許可">
+            <option value="アクセス許可"
+                    th:selected="${statusInput == null or statusInput == 'アクセス許可'}">
                 アクセス許可
             </option>
 
-            <option value="アクセス禁止">
+            <option value="アクセス禁止"
+                    th:selected="${statusInput == 'アクセス禁止'}">
                 アクセス禁止
             </option>
 
@@ -149,7 +155,7 @@ function changeRole() {
 
     <!-- 一般ユーザー -->
     <div id="user-area"
-         style="display:none;">
+         th:style="${roleInput == 'USER'} ? 'display:block;' : 'display:none;'">
 
         <h3>一般ユーザー情報</h3>
 
@@ -161,7 +167,8 @@ function changeRole() {
             <br>
 
             <input type="file"
-                   name="profileImage">
+                   name="profileImage"
+                   accept="image/*">
 
         </div>
 
@@ -175,7 +182,8 @@ function changeRole() {
             <br>
 
             <input type="text"
-                   name="furigana">
+                   name="furigana"
+                   th:value="${furiganaInput}">
 
         </div>
 
@@ -190,11 +198,13 @@ function changeRole() {
 
             <select name="gender">
 
-                <option value="男性">
+                <option value="男性"
+                        th:selected="${genderInput == null or genderInput == '男性'}">
                     男性
                 </option>
 
-                <option value="女性">
+                <option value="女性"
+                        th:selected="${genderInput == '女性'}">
                     女性
                 </option>
 
@@ -213,6 +223,7 @@ function changeRole() {
 
             <input type="text"
                    name="age"
+				   th:value="${ageInput}"
 				   >
 
         </div>
@@ -226,8 +237,7 @@ function changeRole() {
 
             <br>
 
-            <textarea name="profile">
-            </textarea>
+            <textarea name="profile" th:text="${profileInput}"></textarea>
 
         </div>
 
@@ -248,5 +258,6 @@ function changeRole() {
     一覧へ戻る
 </a>
 </div>
+<script src="/js/profile-image-validation.js"></script>
 </body>
 </html>

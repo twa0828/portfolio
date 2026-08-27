@@ -79,11 +79,11 @@
 </div>
 
 <div class="page-actions">
-<button type="button"
-        class="btn btn-primary"
-        th:onclick="'likeAccount(' + ${account.id} + ')'">
-    いいね
-</button>
+<form th:action="@{/introductions/like-page/{id}(id=${account.id})}"
+      method="post">
+    <input type="hidden" name="returnTo" value="detail">
+    <button type="submit" class="btn btn-primary">いいね</button>
+</form>
 
 <a href="/introductions"
    class="btn btn-secondary">
@@ -93,36 +93,5 @@
 
 </div>
 
-<script>
-function likeAccount(id) {
-
-    fetch("/introductions/like/" + id, {
-        method: "POST"
-    })
-    .then(response => {
-
-        if (!response.ok) {
-
-            throw new Error("like failed");
-        }
-
-        return response.json();
-    })
-    .then(data => {
-
-        document.getElementById(
-            "annual-likes-" + id
-        ).textContent = data.annualLikes;
-
-        document.getElementById(
-            "monthly-likes-" + id
-        ).textContent = data.monthlyLikes;
-    })
-    .catch(() => {
-
-        alert("いいねに失敗しました");
-    });
-}
-</script>
 </body>
 </html>

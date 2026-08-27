@@ -134,6 +134,51 @@ class ProfileControllerTest {
     }
 
     @Test
+    void updateProfileRejectsImageLargerThanTwoMegabytes()
+            throws Exception {
+
+        accountRepository.save(new Account(
+                "USER",
+                "更新前",
+                "user@test.com",
+                "password1",
+                "アクセス許可",
+                "false"));
+
+        MockMultipartFile profileImage =
+                new MockMultipartFile(
+                        "profileImage",
+                        "large.png",
+                        "image/png",
+                        new byte[2 * 1024 * 1024 + 1]);
+
+        mockMvc.perform(multipart("/profile/update")
+                        .file(profileImage)
+                        .sessionAttr("loginUser", "user@test.com")
+                        .sessionAttr("role", "USER")
+                        .param("name", "更新後ユーザー")
+                        .param("furigana", "こうしんごゆーざー")
+                        .param("gender", "男性")
+                        .param("age", "25")
+                        .param("profile", "自己紹介です"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile"))
+                .andExpect(model().attribute(
+                        "errorMessage",
+                        "プロフィール画像は2MB以内です"));
+
+        Account account =
+                accountRepository.findByEmail("user@test.com")
+                        .orElseThrow();
+
+        assertThat(account.getName())
+                .isEqualTo("更新前");
+
+        assertThat(account.getProfileImage())
+                .isNull();
+    }
+
+    @Test
     void updateProfileRedirectsWhenNotLoggedIn()
             throws Exception {
 
